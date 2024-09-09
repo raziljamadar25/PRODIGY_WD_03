@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="prodigy_wd_03.css">
+</head>
+<body>
+    <div id="main-menu">
+        <h1>Tic Tac Toe</h1>
+        <button onclick="startGame('computer')">Play with Computer</button>
+        <button onclick="startGame('human')">Play with Human</button>
+        <button onclick="viewRecords()">Game Record</button>
+    </div>
+    <div id="game" style="display: none;">
+        <div id="board">
+            <div class="cell" onclick="makeMove(0)"></div>
+            <div class="cell" onclick="makeMove(1)"></div>
+            <div class="cell" onclick="makeMove(2)"></div>
+            <div class="cell" onclick="makeMove(3)"></div>
+            <div class="cell" onclick="makeMove(4)"></div>
+            <div class="cell" onclick="makeMove(5)"></div>
+            <div class="cell" onclick="makeMove(6)"></div>
+            <div class="cell" onclick="makeMove(7)"></div>
+            <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+        <button onclick="resetGame()">Reset Game</button>
+        <button onclick="goBack()">Back to Menu</button>
+        <h2 id="message"></h2>
+    </div>
+    <div id="records" style="display: none;">
+        <h1>Game Records</h1>
+        <ul id="record-list"></ul>
+        <button onclick="goBack()">Back to Menu</button>
+    </div>
+    <div id="celebration" style="display: none;">
+        <div class="celebration-content">
+            <h1>Congratulations!</h1>
+            <p id="winner-message"></p>
+            <button onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+    <script >
+        let board;
+let currentPlayer;
+let gameMode;
+let gameRecords = [];
+
+function startGame(mode) {
+    gameMode = mode;
+    board = Array(9).fill(null);
+    currentPlayer = 'X';
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
+    document.getElementById('celebration').style.display = 'none';
+    renderBoard();
+    document.getElementById('message').innerText = `${currentPlayer}'s turn`;
+}
+
+function makeMove(index) {
+    if (board[index] || checkWinner()) return;
+    board[index] = currentPlayer;
+    renderBoard();
+    if (checkWinner()) {
+        celebrateWinner(currentPlayer);
+        gameRecords.push(`Winner: ${currentPlayer}`);
+        return;
+    }
+    if (board.every(cell => cell)) {
+        document.getElementById('message').innerText = `It's a draw!`;
+        gameRecords.push(`Draw`);
+        return;
+    }
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    document.getElementById('message').innerText = `${currentPlayer}'s turn`;
+    if (gameMode === 'computer' && currentPlayer === 'O') {
+        computerMove();
+    }
+}
+
+function renderBoard() {
+    document.querySelectorAll('.cell').forEach((cell, index) => {
+        cell.innerText = board[index];
+    });
+}
+
+function checkWinner() {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    return winPatterns.some(pattern => 
+        pattern.every(index => board[index] && board[index] === board[pattern[0]])
+    );
+}
+
+function computerMove() {
+    let emptyCells = board.map((cell, index) => cell ? null : index).filter(cell => cell !== null);
+    let randomMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    makeMove(randomMove);
+}
+
+function resetGame() {
+    startGame(gameMode);
+}
+
+function goBack() {
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('records').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+}
+
+function viewRecords() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('records').style.display = 'block';
+    document.getElementById('record-list').innerHTML = gameRecords.map(record => `<li>${record}</li>`).join('');
+}
+
+function celebrateWinner(player) {
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('celebration').style.display = 'flex';
+    document.getElementById('winner-message').innerText = `${player} wins!`;
+}
+
+    </script>
+</body>
+</html>
